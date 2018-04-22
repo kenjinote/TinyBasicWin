@@ -102,30 +102,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_CREATE:
-	{
-		HTHEME hTheme = OpenThemeData(hWnd, VSCLASS_AEROWIZARD);
-		LOGFONT lf = { 0 };
-		GetThemeFont(hTheme, NULL, AW_HEADERAREA, 0, TMT_FONT, &lf);
-		hFont = CreateFontIndirectW(&lf);
-		dControlHeight = lf.lfHeight * 1.8;
-		if (dControlHeight < 0.0) dControlHeight = -dControlHeight;
-		CloseThemeData(hTheme);
-	}
-	hButton1 = CreateWindow(TEXT("BUTTON"), TEXT("実行(F5)"), WS_VISIBLE | WS_CHILD, 0, 0, 0, 0, hWnd, (HMENU)IDOK, ((LPCREATESTRUCT)lParam)->hInstance, 0);
-	SendMessage(hButton1, WM_SETFONT, (WPARAM)hFont, 0);
-	hButton2 = CreateWindow(TEXT("BUTTON"), TEXT("停止(Esc)"), WS_VISIBLE | WS_CHILD | WS_DISABLED, 0, 0, 0, 0, hWnd, (HMENU)IDCANCEL, ((LPCREATESTRUCT)lParam)->hInstance, 0);
-	SendMessage(hButton2, WM_SETFONT, (WPARAM)hFont, 0);
-	hEdit1 = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), 0, WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOHSCROLL | ES_AUTOVSCROLL, 0, 0, 0, 0, hWnd, 0, ((LPCREATESTRUCT)lParam)->hInstance, 0);
-	DefaultEditWndProc = (WNDPROC)SetWindowLongPtr(hEdit1, GWLP_WNDPROC, (LONG_PTR)EditProc1);
-	SendMessage(hEdit1, EM_LIMITTEXT, 0, 0);
-	SendMessage(hEdit1, WM_SETFONT, (WPARAM)hFont, 0);
-	hEdit2 = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), 0, WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_READONLY, 0, 0, 0, 0, hWnd, 0, ((LPCREATESTRUCT)lParam)->hInstance, 0);
-	SendMessage(hEdit2, EM_LIMITTEXT, 0, 0);
-	SendMessage(hEdit2, WM_SETFONT, (WPARAM)hFont, 0);
-	basic = new CBasic(hEdit1, hEdit2);
-	SendMessage(hEdit1, EM_REPLACESEL, 0, (LPARAM)TEXT("10 "));
-	SetFocus(hEdit1);
-	break;
+		{
+			HTHEME hTheme = OpenThemeData(hWnd, VSCLASS_AEROWIZARD);
+			LOGFONT lf = { 0 };
+			GetThemeFont(hTheme, NULL, AW_HEADERAREA, 0, TMT_FONT, &lf);
+			hFont = CreateFontIndirectW(&lf);
+			dControlHeight = lf.lfHeight * 1.8;
+			if (dControlHeight < 0.0) dControlHeight = -dControlHeight;
+			CloseThemeData(hTheme);
+		}
+		hButton1 = CreateWindow(TEXT("BUTTON"), TEXT("実行(F5)"), WS_VISIBLE | WS_CHILD, 0, 0, 0, 0, hWnd, (HMENU)IDOK, ((LPCREATESTRUCT)lParam)->hInstance, 0);
+		SendMessage(hButton1, WM_SETFONT, (WPARAM)hFont, 0);
+		hButton2 = CreateWindow(TEXT("BUTTON"), TEXT("停止(Esc)"), WS_VISIBLE | WS_CHILD | WS_DISABLED, 0, 0, 0, 0, hWnd, (HMENU)IDCANCEL, ((LPCREATESTRUCT)lParam)->hInstance, 0);
+		SendMessage(hButton2, WM_SETFONT, (WPARAM)hFont, 0);
+		hEdit1 = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), 0, WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOHSCROLL | ES_AUTOVSCROLL, 0, 0, 0, 0, hWnd, 0, ((LPCREATESTRUCT)lParam)->hInstance, 0);
+		DefaultEditWndProc = (WNDPROC)SetWindowLongPtr(hEdit1, GWLP_WNDPROC, (LONG_PTR)EditProc1);
+		SendMessage(hEdit1, EM_LIMITTEXT, 0, 0);
+		SendMessage(hEdit1, WM_SETFONT, (WPARAM)hFont, 0);
+		hEdit2 = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), 0, WS_VISIBLE | WS_CHILD | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_READONLY, 0, 0, 0, 0, hWnd, 0, ((LPCREATESTRUCT)lParam)->hInstance, 0);
+		SendMessage(hEdit2, EM_LIMITTEXT, 0, 0);
+		SendMessage(hEdit2, WM_SETFONT, (WPARAM)hFont, 0);
+		basic = new CBasic(hEdit1, hEdit2);
+		SendMessage(hEdit1, EM_REPLACESEL, 0, (LPARAM)TEXT("10 "));
+		SetFocus(hEdit1);
+		break;
 	case WM_SIZE:
 		MoveWindow(hButton1, 10, 10, 256, (int)dControlHeight, TRUE);
 		MoveWindow(hButton2, 276, 10, 256, (int)dControlHeight, TRUE);
