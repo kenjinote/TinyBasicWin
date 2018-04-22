@@ -9,7 +9,6 @@
 #include <string>
 #include "basic.h"
 
-HWND hEdit;
 TCHAR szClassName[] = TEXT("Window");
 WNDPROC DefaultEditWndProc;
 
@@ -38,14 +37,13 @@ void ReplaceAll(std::wstring& str, const std::wstring& from, const std::wstring&
 
 LRESULT CALLBACK EditProc1(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	static int nLineIndex;
 	switch (msg)
 	{
 	case WM_CHAR:
 		if (wParam == VK_RETURN)
 		{
+			int nLineIndex = (int)SendMessage(hWnd, EM_LINEFROMCHAR, -1, 0);
 			TCHAR szText[10];
-			nLineIndex = (int)SendMessage(hWnd, EM_LINEFROMCHAR, -1, 0);
 			szText[0] = _countof(szText);
 			SendMessage(hWnd, EM_GETLINE, nLineIndex, (LPARAM)szText);
 			nLineIndex = _wtol(szText);
@@ -56,34 +54,34 @@ LRESULT CALLBACK EditProc1(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_KEYUP:
-	{
-		LRESULT lresult = CallWindowProc(DefaultEditWndProc, hWnd, msg, wParam, lParam);
-		if (GetWindowTextLength(hWnd) == 0)
 		{
-			SendMessage(hWnd, EM_REPLACESEL, 0, (LPARAM)TEXT("10 "));
-		}
-		return lresult;
-	}
-	break;
-	case WM_PASTE:
-	{
-		OpenClipboard(NULL);
-		HANDLE hText = GetClipboardData(CF_UNICODETEXT);
-		if (hText)
-		{
-			LPWSTR lpszBuf = (LPWSTR)GlobalLock(hText);
+			LRESULT lresult = CallWindowProc(DefaultEditWndProc, hWnd, msg, wParam, lParam);
+			if (GetWindowTextLength(hWnd) == 0)
 			{
-				std::wstring strClipboardText(lpszBuf);
-				ReplaceAll(strClipboardText, L"\r\n", L"\n");
-				ReplaceAll(strClipboardText, L"\r", L"\n");
-				ReplaceAll(strClipboardText, L"\n", L"\r\n");
-				SendMessage(hWnd, EM_REPLACESEL, 0, (LPARAM)strClipboardText.c_str());
+				SendMessage(hWnd, EM_REPLACESEL, 0, (LPARAM)TEXT("10 "));
 			}
-			GlobalUnlock(hText);
+			return lresult;
 		}
-		CloseClipboard();
-	}
-	return 0;
+		break;
+	case WM_PASTE:
+		{
+			OpenClipboard(NULL);
+			HANDLE hText = GetClipboardData(CF_UNICODETEXT);
+			if (hText)
+			{
+				LPWSTR lpszBuf = (LPWSTR)GlobalLock(hText);
+				{
+					std::wstring strClipboardText(lpszBuf);
+					ReplaceAll(strClipboardText, L"\r\n", L"\n");
+					ReplaceAll(strClipboardText, L"\r", L"\n");
+					ReplaceAll(strClipboardText, L"\n", L"\r\n");
+					SendMessage(hWnd, EM_REPLACESEL, 0, (LPARAM)strClipboardText.c_str());
+				}
+				GlobalUnlock(hText);
+			}
+			CloseClipboard();
+		}
+		return 0;
 	default:
 		break;
 	}
@@ -110,8 +108,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		GetThemeFont(hTheme, NULL, AW_HEADERAREA, 0, TMT_FONT, &lf);
 		hFont = CreateFontIndirectW(&lf);
 		dControlHeight = lf.lfHeight * 1.8;
-		if (dControlHeight < 0.0)
-			dControlHeight = -dControlHeight;
+		if (dControlHeight < 0.0) dControlHeight = -dControlHeight;
 		CloseThemeData(hTheme);
 	}
 	hButton1 = CreateWindow(TEXT("BUTTON"), TEXT("実行(F5)"), WS_VISIBLE | WS_CHILD, 0, 0, 0, 0, hWnd, (HMENU)IDOK, ((LPCREATESTRUCT)lParam)->hInstance, 0);
