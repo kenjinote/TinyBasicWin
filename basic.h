@@ -62,8 +62,8 @@ private:
 	// RAM mapping
 	WCHAR lbuf[SIZE_LINE]; //Command line buffer
 	WCHAR ibuf[SIZE_IBUF]; //i-code conversion buffer
-	short var[26]; //Variable area
-	short arr[SIZE_ARRY]; //Array area
+	int var[26]; //Variable area
+	int arr[SIZE_ARRY]; //Array area
 	WCHAR listbuf[SIZE_LIST]; //List area
 	WCHAR* clp; //Pointer for current line
 	WCHAR* cip; //Pointer for current Intermediate code
@@ -74,17 +74,17 @@ private:
 	unsigned char err;// Error message index
 
 	void c_gets(int nLineIndex);
-	void putnum(short value, short d);
+	void putnum(int value, int d);
 	WCHAR toktoi();
-	WCHAR* getlp(short lineno);
+	WCHAR* getlp(int lineno);
 	int getsize();
 	void inslist();
 	void putlist(WCHAR* ip);
-	short getparam();
-	short ivalue();
-	short imul();
-	short iplus();
-	short iexp();
+	int getparam();
+	int ivalue();
+	int imul();
+	int iplus();
+	int iexp();
 	void iprint();
 	void ivar();
 	void iarray();

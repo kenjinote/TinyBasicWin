@@ -21,7 +21,7 @@ Reference source
 #define nospaceb(c) sstyle(c, i_nsb, sizeof(i_nsb))
 
 // Return random number
-short getrnd(short value) {
+int getrnd(int value) {
 	return (rand() % value) + 1;
 }
 
@@ -111,34 +111,10 @@ void CBasic::c_gets(int nLineIndex)
 }
 
 // Print numeric specified columns
-void CBasic::putnum(short value, short d)
+void CBasic::putnum(int value, int d)
 {
-	unsigned char dig;
-	unsigned char sign;
-
-	if (value < 0) {
-		sign = 1;
-		value = -value;
-	}
-	else {
-		sign = 0;
-	}
-
-	lbuf[6] = 0;
-	dig = 6;
-	do {
-		lbuf[--dig] = (value % 10) + '0';
-		value /= 10;
-	} while (value > 0);
-
-	if (sign)
-		lbuf[--dig] = '-';
-
-	while (6 - dig < d) { // If short
-		SendMessage(m_hOutputEditWnd, EM_REPLACESEL, 0, (LPARAM)TEXT(" "));
-		d--;
-	}
-	SendMessage(m_hOutputEditWnd, EM_REPLACESEL, 0, (LPARAM)&lbuf[dig]);
+	wsprintf(lbuf, TEXT("%d"), value);
+	SendMessage(m_hOutputEditWnd, EM_REPLACESEL, 0, (LPARAM)lbuf);
 }
 
 // Convert token to i-code
@@ -150,8 +126,8 @@ WCHAR CBasic::toktoi() {
 	WCHAR* ptok; // Temporary token pointer
 	WCHAR* s = lbuf; // Pointer to charactor at line buffer
 	WCHAR c; // Surround the string character, " or '
-	short value; //numeric
-	short tmp; //numeric for overflow check
+	int value; //numeric
+	int tmp; //numeric for overflow check
 	while (*s) {
 		while (c_isspace(*s)) s++; // Skip space
 								   //Try keyword conversion
@@ -260,14 +236,14 @@ WCHAR CBasic::toktoi() {
 }
 
 // Get line number by line pointer
-short getlineno(WCHAR *lp) {
+int getlineno(WCHAR *lp) {
 	if (*lp == 0) //end of list
 		return 32767;// max line bumber
 	return *(lp + 1) | *(lp + 2) << 8;
 }
 
 // Search line by line number
-WCHAR* CBasic::getlp(short lineno) {
+WCHAR* CBasic::getlp(int lineno) {
 	WCHAR *lp;
 
 	for (lp = listbuf; *lp; lp += *lp)
@@ -397,8 +373,8 @@ void CBasic::putlist(WCHAR* ip) {
 }
 
 // Get argument in parenthesis
-short CBasic::getparam() {
-	short value;
+int CBasic::getparam() {
+	int value;
 
 	if (*cip != I_OPEN) {
 		err = ERR_PAREN;
@@ -419,8 +395,8 @@ short CBasic::getparam() {
 }
 
 // Get value
-short CBasic::ivalue() {
-	short value;
+int CBasic::ivalue() {
+	int value = 0;
 
 	switch (*cip) {
 	case I_NUM:
@@ -487,15 +463,17 @@ short CBasic::ivalue() {
 }
 
 // multiply or divide calculation
-short CBasic::imul() {
-	short value, tmp;
+int CBasic::imul()
+{
+	int value = ivalue(), tmp;
 
-	value = ivalue();
 	if (err)
 		return -1;
 
 	while (1)
-		switch (*cip) {
+	{
+		switch (*cip)
+		{
 		case I_MUL:
 			cip++;
 			tmp = ivalue();
@@ -513,11 +491,12 @@ short CBasic::imul() {
 		default:
 			return value;
 		}
+	}
 }
 
 // add or subtract calculation
-short CBasic::iplus() {
-	short value, tmp;
+int CBasic::iplus() {
+	int value, tmp;
 
 	value = imul();
 	if (err)
@@ -541,8 +520,8 @@ short CBasic::iplus() {
 }
 
 // The parser
-short CBasic::iexp() {
-	short value, tmp;
+int CBasic::iexp() {
+	int value, tmp;
 
 	value = iplus();
 	if (err)
@@ -588,8 +567,8 @@ short CBasic::iexp() {
 
 // PRINT handler
 void CBasic::iprint() {
-	short value;
-	short len;
+	int value;
+	int len;
 	WCHAR i;
 
 	len = 0;
@@ -632,8 +611,8 @@ void CBasic::iprint() {
 
 // Variable assignment handler
 void CBasic::ivar() {
-	short value;
-	short index;
+	int value;
+	int index;
 
 	index = *cip++;
 	if (*cip != I_EQ) {
@@ -651,8 +630,8 @@ void CBasic::ivar() {
 
 // Array assignment handler
 void CBasic::iarray() {
-	short value;
-	short index;
+	int value;
+	int index;
 
 	index = getparam();
 	if (err)
@@ -696,10 +675,10 @@ void CBasic::ilet() {
 // Execute a series of i-code
 WCHAR* CBasic::iexe()
 {
-	short lineno; //line number
+	int lineno; //line number
 	WCHAR* lp; //temporary line pointer
-	short index, vto, vstep; // FOR-NEXT items
-	short condition; //IF condition
+	int index, vto, vstep; // FOR-NEXT items
+	int condition; //IF condition
 	while (*cip != I_EOL)
 	{
 		if (m_bAbort)
@@ -798,7 +777,7 @@ WCHAR* CBasic::iexe()
 				err = ERR_LSTKUF;
 				break;
 			}
-			index = (short)(uintptr_t)lstk[lstki - 1]; // read variable index
+			index = (int)(uintptr_t)lstk[lstki - 1]; // read variable index
 			if (*cip++ != I_VAR) { // no variable
 				err = ERR_NEXTWOV;
 				break;
@@ -807,9 +786,9 @@ WCHAR* CBasic::iexe()
 				err = ERR_NEXTUM;
 				break;
 			}
-			vstep = (short)(uintptr_t)lstk[lstki - 2]; // read STEP value
+			vstep = (int)(uintptr_t)lstk[lstki - 2]; // read STEP value
 			var[index] += vstep; // update loop counter
-			vto = (short)(uintptr_t)lstk[lstki - 3]; // read TO value
+			vto = (int)(uintptr_t)lstk[lstki - 3]; // read TO value
 													 // loop end
 			if (((vstep < 0) && (var[index] < vto)) ||
 				((vstep > 0) && (var[index] > vto))) {
